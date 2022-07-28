@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = ".";
+
+message Topic {
+  string name = 1;
+  repeated string actions = 2;
+}
+
+message Response{
+  string payload = 1;
+}
+
+service Notification {
+  rpc Subscribe (Topic) returns (stream Response);
+}
