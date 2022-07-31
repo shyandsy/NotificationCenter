@@ -7,8 +7,7 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/shyandsy/notification-center/pb"
-
+	"github.com/shyandsy/notification-center/internal/pb"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"google.golang.org/grpc"
@@ -24,9 +23,9 @@ func Start(addr string) (*grpc.ClientConn, error) {
 	return conn, nil
 }
 
-func Subscribe(conn *grpc.ClientConn, topic *pb.Topic, callback func(string) error) error {
+func Subscribe(conn *grpc.ClientConn, topic *__.Topic, callback func(string) error) error {
 	// 初始化Greeter服务客户端
-	c := pb.NewNotificationClient(conn)
+	c := __.NewNotificationClient(conn)
 
 	// 初始化上下文，设置请求超时时间为1秒
 	ctx, cancel := context.WithTimeout(context.Background(), 10000*time.Second)
@@ -41,12 +40,11 @@ func Subscribe(conn *grpc.ClientConn, topic *pb.Topic, callback func(string) err
 	for {
 		// 通过 Recv() 不断获取服务端send()推送的消息
 		resp, err := stream.Recv()
-		// 4. err==io.EOF则表示服务端关闭stream了 退出
-		if err == io.EOF {
-			log.Println("server closed")
-			break
-		}
 		if err != nil {
+			if err == io.EOF { // 4. err==io.EOF则表示服务端关闭stream了 退出
+				log.Println("server closed")
+				break
+			}
 			log.Printf("Recv error:%v", err)
 			continue
 		}
@@ -67,7 +65,7 @@ func Callback(payload string) error {
 func main() {
 	var wg sync.WaitGroup
 
-	topic := &pb.Topic{Name: "hello_world", Actions: []string{"GET", "CREATE", "UPDATE", "DELETE"}}
+	topic := &__.Topic{Name: "hello_world", Actions: []string{"GET", "CREATE", "UPDATE", "DELETE"}}
 	conn, err := Start("localhost:9001")
 	if err != nil {
 		log.Fatal(err)
